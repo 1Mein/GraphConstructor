@@ -16,6 +16,8 @@ try:
         #proverka na existance
         if os.path.exists(r'1\imgs\Снимок экрана (' + str(i) + ').png'): 
             pict = Image.open(path)
+
+            #crop image is unnecessary, its probably work only for my screen. It influents only to the speed I think.
             pict = pict.crop((260, 50, 1270, 1020))
 
             #converting to cherno belyi
@@ -42,6 +44,8 @@ try:
                 print('can\'t find a wpm')
 
             if wpm == 'si': wpm = '51'
+
+
 
             #output
             print(str(i) + ". " + wpm + " wpm" +
