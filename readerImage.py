@@ -6,6 +6,8 @@ import os
 import time
 import matplotlib.pyplot as plt
 import math
+import sys
+sys.stdout.reconfigure(encoding='utf-8')
 
 pytesseract.pytesseract.tesseract_cmd = r'C:\Program Files\Tesseract-OCR\tesseract.exe'
 # plt.imshow(pict)
@@ -13,6 +15,14 @@ pytesseract.pytesseract.tesseract_cmd = r'C:\Program Files\Tesseract-OCR\tessera
 
 wpms = []
 times = []
+titles = []
+names = []
+counterForTitles = 0
+
+# try:
+#     fileForOut = open(r'1\outputData.txt', 'w')
+# except Exception as e:
+#     print(e)
 
 try:
     for i in range(80, 228):  # 228
@@ -20,6 +30,8 @@ try:
         path = r'1\imgs\Снимок экрана (' + str(i) + ').png'
         # proverka na existance
         if os.path.exists(path):
+            titles.append('A')
+            names.append(str(i))
             pict = Image.open(path)
 
             # crop image is unnecessary, its probably work only for my screen. It influents only to the speed I think.
@@ -37,19 +49,31 @@ try:
             # reading the image
             text = pytesseract.image_to_string(
                 pict, lang="eng", config='--psm 12')
+            text = text.replace('|' , 'I')
+            text = text.replace('si' , '51')
+            text = text.replace('Si' , '51')
+            # print(text)
+
+            # wordsSymbol = text.split(' ')
+            # print(wordsSymbol)
             
             # raspredelenie na massiv
             words = text.split()
             # to lowercase words
+            # print(words)
+            if 'quote' in words:
+                for j in range (words.index('quote'),len(words) - words[::-1].index('wpm') - 2):
+                    titles[counterForTitles] +=' ' + words[j]
+            else:
+                titles[counterForTitles] = "Can\'t scan a text"
+            counterForTitles+=1
+
             words = [word.lower() for word in words]
             # expecting wpm
             try:
                 wpm = str(words[words.index('wpm')-1])[:2]
             except Exception as e:
                 print('can\'t find a wpm')
-
-            if wpm == 'si':
-                wpm = '51'
 
             wpms.append(wpm)
 
@@ -74,6 +98,12 @@ try:
     print(wpms)
     print(relTimes)
     print(times)
+    print(titles)
+    print(names)
+    with open(r'1\outputData.txt', 'w', encoding='utf-8') as f:
+        for i in range(len(wpms)):
+            f.write(str(i+1) + '. ' + wpms[i] + ' wpm | ' + times[i] + ' | ' + names[i] + '\n' + titles[i] + '\n\n')
+
 
     plt.rcParams['figure.figsize'] = [20,3]
     plt.plot(times,wpms,label = "times")
